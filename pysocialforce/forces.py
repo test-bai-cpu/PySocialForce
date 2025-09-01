@@ -200,6 +200,8 @@ class GroupGazeForceAlt(Force):
                 member_pos = self.peds.pos()[group, :]
                 member_directions = directions[group, :]
                 member_dist = dist[group]
+                member_dist_safe = np.where(member_dist == 0, 1e-6, member_dist)
+                
                 # use center of mass without the current agent
                 relative_com = np.array(
                     [
@@ -217,7 +219,7 @@ class GroupGazeForceAlt(Force):
                 force = (
                     com_dist.reshape(-1, 1)
                     * element_prod.reshape(-1, 1)
-                    / member_dist.reshape(-1, 1)
+                    / member_dist_safe.reshape(-1, 1)
                     * member_directions
                 )
                 forces[group, :] += force

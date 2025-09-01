@@ -1,4 +1,4 @@
-"""This module tracks the state odf scene and scen elements like pedestrians, groups and obstacles"""
+"""This module tracks the state odf scene and scene elements like pedestrians, groups and obstacles"""
 from typing import List
 
 import numpy as np
@@ -10,10 +10,12 @@ class PedState:
     """Tracks the state of pedstrains and social groups"""
 
     def __init__(self, state, groups, config):
-        self.default_tau = config("tau", 0.5)
-        self.step_width = config("step_width", 0.4)
-        self.agent_radius = config("agent_radius", 0.35)
-        self.max_speed_multiplier = config("max_speed_multiplier", 1.3)
+        scene_config = config.sub_config("scene")
+        self.default_tau = scene_config("tau", 0.5)
+        self.step_width = scene_config("step_width", 0.1)
+        self.agent_radius = scene_config("agent_radius", 0.35)
+        self.max_speed_multiplier = scene_config("max_speed_multiplier", 1.3)
+        self.max_speed = scene_config("max_speed", 1.5)
 
         self.max_speeds = None
         self.initial_speeds = None
@@ -40,7 +42,8 @@ class PedState:
             self._state = state
         if self.initial_speeds is None:
             self.initial_speeds = self.speeds()
-        self.max_speeds = self.max_speed_multiplier * self.initial_speeds
+        # self.max_speeds = self.max_speed_multiplier * self.initial_speeds
+        self.max_speeds = np.minimum(self.max_speed_multiplier * self.initial_speeds, self.max_speed)
         self.ped_states.append(self._state.copy())
 
     def get_states(self):
